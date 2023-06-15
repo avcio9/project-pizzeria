@@ -83,6 +83,7 @@ const select = {
       thisProduct.formInputs = thisProduct.form.querySelectorAll(select.all.formInputs);
       thisProduct.cartButton = thisProduct.element.querySelector(select.menuProduct.cartButton);
       thisProduct.priceElem = thisProduct.element.querySelector(select.menuProduct.priceElem);
+      thisProduct.imageWrapper = thisProduct.element.querySelector(select.menuProduct.imageWrapper);
     }
     initAccordion(){
       const thisProduct = this;
@@ -134,6 +135,7 @@ const select = {
     
       // set price to default price
       let price = thisProduct.data.price;
+      const images = thisProduct.imageWrapper.querySelectorAll('img')
     
       // for every category (param)...
       for(let paramId in thisProduct.data.params) {
@@ -146,10 +148,22 @@ const select = {
           // determine option value, e.g. optionId = 'olives', option = { label: 'Olives', price: 2, default: true }
           const option = param.options[optionId];
           const isOptChecked = formParam.includes(optionId);
-          isOptChecked? option.default? null : price += option.price : option.default? price -= option.price : null;         
+
+          // reduce or increase the price of option box is checked/unchecked
+          isOptChecked? option.default? null : price += option.price : option.default? price -= option.price : null;
+
+          // get a string of a customable element
+          const optStringParam = `${param.label.toLowerCase()}-${optionId}`
+
+          // loop throught images and add or remove active class
+          for (let image of images) {
+            if (image.classList.contains(optStringParam)) {
+              isOptChecked? image.classList.add('active') : image.classList.remove('active')
+            }
+          }
+                 
         }
       }
-    
       // update calculated price in the HTML
       thisProduct.priceElem.innerHTML = price;
     }
