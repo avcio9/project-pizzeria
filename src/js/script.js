@@ -43,8 +43,8 @@ const select = {
   const settings = {
     amountWidget: {
       defaultValue: 1,
-      defaultMin: 1,
-      defaultMax: 9,
+      defaultMin: 0,
+      defaultMax: 10,
     }
   };
 
@@ -59,6 +59,7 @@ const select = {
       thisProduct.data = data;
       thisProduct.renderInMenu();
       thisProduct.getElements();
+      thisProduct.initAmountWidget()
       thisProduct.initAccordion();
       thisProduct.initOrderForm();
       thisProduct.processOrder();
@@ -84,6 +85,7 @@ const select = {
       thisProduct.cartButton = thisProduct.element.querySelector(select.menuProduct.cartButton);
       thisProduct.priceElem = thisProduct.element.querySelector(select.menuProduct.priceElem);
       thisProduct.imageWrapper = thisProduct.element.querySelector(select.menuProduct.imageWrapper);
+      thisProduct.amountWidgetElem = thisProduct.element.querySelector(select.menuProduct.amountWidget);
     }
     initAccordion(){
       const thisProduct = this;
@@ -126,6 +128,10 @@ const select = {
         event.preventDefault();
         thisProduct.processOrder();
       });
+
+      thisProduct.amountWidgetElem.addEventListener('updated', function() {
+        thisProduct.processOrder();
+      })
     }
     processOrder() {
       const thisProduct = this;
@@ -165,7 +171,71 @@ const select = {
         }
       }
       // update calculated price in the HTML
+      price *= thisProduct.amountWidget.value;
       thisProduct.priceElem.innerHTML = price;
+    }
+
+    initAmountWidget() {
+      const thisProduct = this;
+
+      thisProduct.amountWidget = new AmountWidget(thisProduct.amountWidgetElem);
+    }
+    
+  }
+
+  class AmountWidget {
+    constructor(element){
+      const thisWidget = this;
+      
+      thisWidget.getElements(element);
+      thisWidget.setValue(settings.amountWidget.defaultValue)
+      thisWidget.initActions();
+    }
+    getElements(element){
+      const thisWidget = this;
+    
+      thisWidget.element = element;
+      thisWidget.input = thisWidget.element.querySelector(select.widgets.amount.input);
+      thisWidget.linkDecrease = thisWidget.element.querySelector(select.widgets.amount.linkDecrease);
+      thisWidget.linkIncrease = thisWidget.element.querySelector(select.widgets.amount.linkIncrease);
+    } 
+    setValue(value) {
+      const thisWidget = this;
+      const newValue = parseInt(value);
+
+      // verify if quantity is in range of settings
+      if (newValue < settings.amountWidget.defaultMin || newValue > settings.amountWidget.defaultMax) {
+        thisWidget.input.value = thisWidget.value;
+        return;
+      }
+
+      // verify if the input is a correct number and if its not the same as current value
+      if (thisWidget.value == value || isNaN(newValue)) {
+        thisWidget.input.value = thisWidget.value;
+        return;
+      }
+      thisWidget.value = newValue;
+      thisWidget.input.value = thisWidget.value;
+      thisWidget.announce();
+    }
+    initActions(){
+      const thisWidget = this;
+      thisWidget.input.addEventListener('change', function(){
+        thisWidget.setValue(thisWidget.input.value);
+      });
+      thisWidget.linkDecrease.addEventListener('click', function(event){
+        event.preventDefault();
+        thisWidget.setValue(thisWidget.value - 1)
+      })
+      thisWidget.linkIncrease.addEventListener('click', function(event){
+        event.preventDefault();
+        thisWidget.setValue(thisWidget.value + 1)
+      })
+    }
+    announce(){
+      const thisWidget = this;
+      const event = new Event('updated');
+      thisWidget.element.dispatchEvent(event);
     }
   }
 
