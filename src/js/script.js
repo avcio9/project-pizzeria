@@ -395,13 +395,16 @@
       }
       fetch(url, options).then(function(response){
         return response.json();
-      }).then(function(){
-        for (let product of thisCart.products){
-          product.dom.wrapper.remove();
-        }
-        thisCart.products = [];
-        thisCart.update();
-      })
+      }).then(this.cleanCart())
+    }
+
+    cleanCart(){
+      const thisCart = this;
+      for (let product of thisCart.products){
+        product.dom.wrapper.remove();
+      }
+      thisCart.products = [];
+      thisCart.update();
     }
 
     add(menuProduct) {
