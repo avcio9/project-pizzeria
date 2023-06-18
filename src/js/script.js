@@ -422,8 +422,12 @@
       switch (type) {
         case 'address':
           return input.includes('@') && input.includes('.') && input.length > 3;
-        case 'phone':
-          return input.length >= 9 && parseInt(input);
+        case 'phone': {
+          let allowedLength = 9;
+          if (input.includes('+')) allowedLength += 2;
+          input = input.replaceAll(' ', '').replace('+','')
+          return parseInt(input).toString().length == allowedLength;
+        }
       }
     }
 
