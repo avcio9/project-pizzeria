@@ -344,6 +344,8 @@
     getElements(element) {
       const thisCart = this;
 
+      thisCart.isAddressValid = false;
+      thisCart.isPhoneValid = false;
       thisCart.dom = {};
       thisCart.dom.wrapper = element;
       thisCart.dom.toggleTrigger = thisCart.dom.wrapper.querySelector(select.cart.toggleTrigger);
@@ -371,10 +373,22 @@
         event.preventDefault();
         thisCart.sendOrder();
       })
+
+      thisCart.dom.phone.addEventListener('input', function(){
+        const isValid = thisCart.validateForm(thisCart.dom.phone.value, 'phone')
+        isValid? thisCart.dom.phone.classList.remove('error') : thisCart.dom.phone.classList.add('error');
+        thisCart.isPhoneValid = isValid
+      })
+      thisCart.dom.address.addEventListener('input', function(){
+        const isValid = thisCart.validateForm(thisCart.dom.address.value, 'address')
+        isValid? thisCart.dom.address.classList.remove('error') : thisCart.dom.address.classList.add('error');
+        thisCart.isAddressValid = isValid
+      })
     }
 
     sendOrder() {
       const thisCart = this;
+      if (!thisCart.validateCart()) return;
       const url = settings.db.url + '/' + settings.db.orders;
       const payload = {
         address: thisCart.dom.address.value,
@@ -388,6 +402,8 @@
       for (let prod of thisCart.products) {
         payload.products.push(prod.getData());
       }
+
+
       const options = {
         method: 'POST',
         body: JSON.stringify(payload),
@@ -398,6 +414,20 @@
       fetch(url, options).then(function(response){
         return response.json();
       }).then(this.cleanCart())
+    }
+
+    validateForm(input, type){
+      switch(type){
+        case 'address':
+          return input.includes('@') && input.includes('.') && input.length > 3;
+        case 'phone':
+          return input.length >= 9;
+      }
+    }
+
+    validateCart(){
+      const thisCart = this;
+      return thisCart.isAddressValid && thisCart.isPhoneValid && thisCart.products.length > 0
     }
 
     cleanCart(){
@@ -534,7 +564,6 @@
         return rawResponse.json();
       })
         .then(function (parsedResponse) {
-          console.log('parsedResponse', parsedResponse);
           thisApp.data.products = parsedResponse;
           thisApp.initMenu();
         })
