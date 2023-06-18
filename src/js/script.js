@@ -375,14 +375,14 @@
         thisCart.sendOrder();
       })
 
-      thisCart.dom.phone.addEventListener('input', function(){
+      thisCart.dom.phone.addEventListener('input', function () {
         const isValid = thisCart.validateForm(thisCart.dom.phone.value, 'phone')
-        isValid? thisCart.dom.phone.classList.remove('error') : thisCart.dom.phone.classList.add('error');
+        isValid ? thisCart.dom.phone.classList.remove('error') : thisCart.dom.phone.classList.add('error');
         thisCart.isPhoneValid = isValid
       })
-      thisCart.dom.address.addEventListener('input', function(){
+      thisCart.dom.address.addEventListener('input', function () {
         const isValid = thisCart.validateForm(thisCart.dom.address.value, 'address')
-        isValid? thisCart.dom.address.classList.remove('error') : thisCart.dom.address.classList.add('error');
+        isValid ? thisCart.dom.address.classList.remove('error') : thisCart.dom.address.classList.add('error');
         thisCart.isAddressValid = isValid
       })
     }
@@ -412,13 +412,13 @@
           'Content-Type': 'application/json'
         }
       }
-      fetch(url, options).then(function(response){
+      fetch(url, options).then(function (response) {
         return response.json();
       }).then(this.cleanCart())
     }
 
-    validateForm(input, type){
-      switch(type){
+    validateForm(input, type) {
+      switch (type) {
         case 'address':
           return input.includes('@') && input.includes('.') && input.length > 3;
         case 'phone':
@@ -426,14 +426,14 @@
       }
     }
 
-    validateCart(){
+    validateCart() {
       const thisCart = this;
       return thisCart.isAddressValid && thisCart.isPhoneValid && thisCart.products.length > 0
     }
 
-    cleanCart(){
+    cleanCart() {
       const thisCart = this;
-      for (let product of thisCart.products){
+      for (let product of thisCart.products) {
         product.dom.wrapper.remove();
       }
       thisCart.products = [];
@@ -467,6 +467,21 @@
         totalPrice.innerHTML = totalSubPrice + deliveryFee
       }
       thisCart.dom.totalNumber.innerHTML = totalNumber;
+
+      // add lowered opacity class on total price and number and remove it after 0.5s
+      const price = thisCart.dom.wrapper.querySelector('.cart__total-price');
+      price.classList.add('cart__total-number-transition')
+      thisCart.dom.totalNumber.classList.add('cart__total-number-transition')
+      setTimeout(function() {
+        price.classList.add('cart__total-number-transition-drop')
+        thisCart.dom.totalNumber.classList.add('cart__total-number-transition-drop')
+      },200)
+      setTimeout(function () {
+        price.classList.remove('cart__total-number-transition')
+        thisCart.dom.totalNumber.classList.remove('cart__total-number-transition')
+        price.classList.remove('cart__total-number-transition-drop')
+        thisCart.dom.totalNumber.classList.remove('cart__total-number-transition-drop')
+      }, 400)
     }
     remove(cartProduct) {
       const thisCart = this;
