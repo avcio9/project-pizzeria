@@ -230,6 +230,7 @@
       app.cart.add(thisProduct.prepareCartProduct());
       thisProduct.amountWidget.value = settings.amountWidget.defaultValue;
       thisProduct.amountWidget.input.value = thisProduct.amountWidget.value;
+      thisProduct.priceElem.innerHTML = thisProduct.amountWidget.value * thisProduct.priceSingle;
     }
 
     prepareCartProduct() {
