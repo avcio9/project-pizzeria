@@ -423,7 +423,7 @@
         case 'address':
           return input.includes('@') && input.includes('.') && input.length > 3;
         case 'phone':
-          return input.length >= 9;
+          return input.length >= 9 && parseInt(input);
       }
     }
 
