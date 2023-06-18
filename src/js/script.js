@@ -395,8 +395,12 @@
       }
       fetch(url, options).then(function(response){
         return response.json();
-      }).then(function(parsedResponse){
-        console.log('parsedResponse', parsedResponse);
+      }).then(function(){
+        for (let product of thisCart.products){
+          product.dom.wrapper.remove();
+        }
+        thisCart.products = [];
+        thisCart.update();
       })
     }
 
