@@ -228,6 +228,8 @@
       const thisProduct = this;
       thisProduct.prepareCartProductParams();
       app.cart.add(thisProduct.prepareCartProduct());
+      thisProduct.amountWidget.value = settings.amountWidget.defaultValue;
+      thisProduct.amountWidget.input.value = thisProduct.amountWidget.value;
     }
 
     prepareCartProduct() {
