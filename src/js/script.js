@@ -390,7 +390,10 @@
 
     sendOrder() {
       const thisCart = this;
-      if (!thisCart.validateCart()) return;
+      if (!thisCart.validateCart()) {
+        console.log('Error: Invalid contact input')
+        return;
+      }
       const url = settings.db.url + '/' + settings.db.orders;
       const payload = {
         address: thisCart.dom.address.value,
@@ -410,12 +413,15 @@
         method: 'POST',
         body: JSON.stringify(payload),
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
         }
       }
       fetch(url, options).then(function (response) {
         return response.json();
-      }).then(this.cleanCart())
+      }).then(function(parsedResponse){
+        thisCart.cleanCart();
+        console.log('parsedResponse', parsedResponse)
+      })
     }
 
     validateForm(input, type) {
