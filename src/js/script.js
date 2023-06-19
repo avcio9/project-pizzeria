@@ -394,7 +394,6 @@
         console.log('Error: Invalid contact input')
         return;
       }
-      const url = settings.db.url + '/' + settings.db.orders;
       const payload = {
         address: thisCart.dom.address.value,
         phone: thisCart.dom.phone.value,
@@ -409,19 +408,7 @@
       }
 
 
-      const options = {
-        method: 'POST',
-        body: JSON.stringify(payload),
-        headers: {
-          'Content-Type': 'application/json',
-        }
-      }
-      fetch(url, options).then(function (response) {
-        return response.json();
-      }).then(function(parsedResponse){
-        thisCart.cleanCart();
-        console.log('parsedResponse', parsedResponse)
-      })
+      app.API.sendPayload(payload);
     }
 
     validateForm(input, type) {
@@ -576,6 +563,49 @@
     }
   }
 
+  class API {
+    getProducts(){
+      const thisApi = this;
+      const url = settings.db.url + '/' + settings.db.products;
+
+      try {
+      fetch(url).then(function (rawResponse) {
+        thisApi.catchErrors(url, rawResponse);
+        return rawResponse.json();
+      })
+        .then(function (parsedResponse) {
+          app.data.products = parsedResponse;
+          app.initMenu();
+        })
+      } catch (error) {
+        console.log(error)
+      }
+    }
+
+    sendPayload(payload){
+      const thisApi = this;
+      const url = settings.db.url + '/' + settings.db.orders;
+      const options = {
+        method: 'POST',
+        body: JSON.stringify(payload),
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      }
+      fetch(url, options).then(function (response) {
+        thisApi.catchErrors(url, response);
+        return response.json();
+      }).then(function(parsedResponse){
+        app.cart.cleanCart();
+        console.log('parsedResponse', parsedResponse)
+      })
+    }
+
+    catchErrors(url, response){
+      if (!response.ok) console.log(`Failed to communicate with ${url}. Error: ${response.status}`);
+    }
+  }
+
   const app = {
     initMenu: function () {
       const thisApp = this;
@@ -583,20 +613,18 @@
         new Product(thisApp.data.products[productData].id, thisApp.data.products[productData]);
       }
     },
+    initAPI: function () {
+      const thisApp = this
+      thisApp.API = new API();
+    },
     initData: function () {
       const thisApp = this;
       thisApp.data = {};
-      const url = settings.db.url + '/' + settings.db.products;
-      fetch(url).then(function (rawResponse) {
-        return rawResponse.json();
-      })
-        .then(function (parsedResponse) {
-          thisApp.data.products = parsedResponse;
-          thisApp.initMenu();
-        })
+      thisApp.API.getProducts()
     },
     init: function () {
       const thisApp = this;
+      thisApp.initAPI();
       thisApp.initData();
       thisApp.initCart();
     },
