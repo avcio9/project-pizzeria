@@ -419,13 +419,32 @@
           let allowedLength = 9;
           if (input.includes('+')) allowedLength += 2;
           input = input.replaceAll(' ', '').replace('+','')
-          return parseInt(input).toString().length == allowedLength;
+          return parseInt(input).toString().length == allowedLength && input.length == allowedLength;
         }
       }
     }
 
     validateCart() {
       const thisCart = this;
+
+      // remove and add error class with small invertals as a hint to fix the form
+      if (!thisCart.isAddressValid) {
+        const interval = 125;
+        for (let x = 1;x <= 4; x++) {
+          setTimeout(function(){
+            thisCart.dom.address.classList.toggle('error')
+          },interval * x)
+        }
+      }
+
+      if (!thisCart.isPhoneValid) {
+        const interval = 125;
+        for (let x = 1;x <= 4; x++) {
+          setTimeout(function(){
+            thisCart.dom.phone.classList.toggle('error')
+          },interval * x)
+        }
+      }
       return thisCart.isAddressValid && thisCart.isPhoneValid && thisCart.products.length > 0
     }
 
@@ -568,18 +587,15 @@
       const thisApi = this;
       const url = settings.db.url + '/' + settings.db.products;
 
-      try {
+
       fetch(url).then(function (rawResponse) {
-        thisApi.catchErrors(url, rawResponse);
+        if (!thisApi.catchErrors(url, rawResponse)) return;
         return rawResponse.json();
       })
         .then(function (parsedResponse) {
           app.data.products = parsedResponse;
           app.initMenu();
         })
-      } catch (error) {
-        console.log(error)
-      }
     }
 
     sendPayload(payload){
@@ -593,7 +609,7 @@
         }
       }
       fetch(url, options).then(function (response) {
-        thisApi.catchErrors(url, response);
+        if (!thisApi.catchErrors(url, response)) return;
         return response.json();
       }).then(function(parsedResponse){
         app.cart.cleanCart();
@@ -602,7 +618,10 @@
     }
 
     catchErrors(url, response){
-      if (!response.ok) console.log(`Failed to communicate with ${url}. Error: ${response.status}`);
+      if (!response.ok) {
+        console.log(`Request failed ${url}. Error, ${response.status}`, response);
+        return false
+      } else return true;
     }
   }
 
@@ -620,7 +639,7 @@
     initData: function () {
       const thisApp = this;
       thisApp.data = {};
-      thisApp.API.getProducts()
+      thisApp.API.getProducts();
     },
     init: function () {
       const thisApp = this;
