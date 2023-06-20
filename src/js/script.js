@@ -427,7 +427,7 @@
     validateCart() {
       const thisCart = this;
 
-      // remove and add error class with small invertals as a hint to fix the form
+      // remove and add error class with small intervals as a hint to fix the form
       if (!thisCart.isAddressValid) {
         const interval = 125;
         for (let x = 1;x <= 4; x++) {
