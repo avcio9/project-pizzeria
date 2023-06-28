@@ -3,6 +3,7 @@ import { classNames, select } from './settings.js';
 import Product from './components/Product.js';
 import API from './components/Api.js';
 import Cart from './components/Cart.js';
+import Booking from './components/Booking.js';
 
 
 const app = {
@@ -70,12 +71,18 @@ const app = {
     thisApp.data = {};
     thisApp.API.getProducts();
   },
+  initBooking: function() {
+    const thisApp = this;
+    const bookingWrapper = document.querySelector(select.containerOf.booking);
+    thisApp.booking = new Booking(bookingWrapper);
+  },
   init: function () {
     const thisApp = this;
     thisApp.initAPI();
     thisApp.initData();
     thisApp.initCart();
     thisApp.initPages();
+    thisApp.initBooking();
   },
   initCart: function () {
     const thisApp = this;
