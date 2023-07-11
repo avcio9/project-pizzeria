@@ -3,6 +3,7 @@ import AmountWidget from './AmountWidget.js';
 import utils from '../utils.js';
 import DatePicker from './DatePicker.js';
 import HourPicker from './HourPicker.js';
+import app from '../app.js';
 
 class Booking {
   constructor(element) {
@@ -24,6 +25,10 @@ class Booking {
     thisBooking.dom.hourPicker = thisBooking.dom.wrapper.querySelector(select.widgets.hourPicker.wrapper);
     thisBooking.dom.tables = thisBooking.dom.wrapper.querySelectorAll(select.booking.tables);
     thisBooking.dom.tablesWrapper = thisBooking.dom.wrapper.querySelector(select.booking.tablesWrapper);
+    thisBooking.dom.form = thisBooking.dom.wrapper.querySelector(select.booking.formSubmit);
+    thisBooking.dom.address = thisBooking.dom.wrapper.querySelector(select.booking.address);
+    thisBooking.dom.phone = thisBooking.dom.wrapper.querySelector(select.booking.phone);
+    thisBooking.dom.starters = thisBooking.dom.wrapper.querySelectorAll(select.booking.starters);
   }
   initWidgets() {
     const thisBooking = this;
@@ -44,8 +49,8 @@ class Booking {
       if (!tableNumber) return;
 
       // block clicking on booked table
-      if (thisBooking.booked[thisBooking.date] 
-        && thisBooking.booked[thisBooking.date][thisBooking.hour] 
+      if (thisBooking.booked[thisBooking.date]
+        && thisBooking.booked[thisBooking.date][thisBooking.hour]
         && thisBooking.booked[thisBooking.date][thisBooking.hour].includes(Number(tableNumber))) {
         return;
       }
@@ -64,6 +69,70 @@ class Booking {
       thisBooking.activeTable = tableNumber;
       event.target.classList.add(classNames.booking.selected);
     });
+
+    thisBooking.dom.form.addEventListener('click', function (event) {
+      event.preventDefault();
+      thisBooking.sendBooking();
+    });
+
+    thisBooking.dom.phone.addEventListener('input', function () {
+      const isValid = utils.validateForm(thisBooking.dom.phone.value, 'phone');
+      isValid ? thisBooking.dom.phone.classList.remove('error') : thisBooking.dom.phone.classList.add('error');
+      thisBooking.isPhoneValid = isValid;
+    });
+    thisBooking.dom.address.addEventListener('input', function () {
+      const isValid = utils.validateForm(thisBooking.dom.address.value, 'address');
+      isValid ? thisBooking.dom.address.classList.remove('error') : thisBooking.dom.address.classList.add('error');
+      thisBooking.isAddressValid = isValid;
+    });
+  }
+
+  sendBooking() {
+    const thisBooking = this;
+    if (!thisBooking.validateBooking()) {
+      console.log('Error: Invalid contact input');
+      return;
+    }
+    const payload = {
+      date: thisBooking.datePicker.value,
+      hour: thisBooking.hourPicker.value,
+      table:  Number(thisBooking.activeTable),
+      duration:  Number(thisBooking.hoursAmountWidget.value),
+      ppl: Number(thisBooking.peopleAmountWidget.value),
+      starters: [],
+      address: thisBooking.dom.address.value,
+    };
+
+    for (const starter of thisBooking.dom.starters){
+      starter.checked? payload.starters.push(starter.value) : null;
+    }
+    app.API.sendPayload(payload, settings.db.url + '/' + settings.db.booking);
+    console.log(thisBooking.hourPicker.value);
+    thisBooking.makeBooked(thisBooking.datePicker.value, thisBooking.hourPicker.value, thisBooking.hoursAmountWidget.value, Number(thisBooking.activeTable));
+    thisBooking.updateDOM();
+  }
+  validateBooking() {
+    const thisBooking = this;
+
+    // remove and add error class with small intervals as a hint to fix the form
+    if (!thisBooking.isAddressValid) {
+      const interval = 125;
+      for (let x = 1;x <= 4; x++) {
+        setTimeout(function(){
+          thisBooking.dom.address.classList.toggle('error');
+        },interval * x);
+      }
+    }
+
+    if (!thisBooking.isPhoneValid) {
+      const interval = 125;
+      for (let x = 1;x <= 4; x++) {
+        setTimeout(function(){
+          thisBooking.dom.phone.classList.toggle('error');
+        },interval * x);
+      }
+    }
+    return !isNaN(thisBooking.activeTable) && thisBooking.isAddressValid && thisBooking.isPhoneValid;
   }
   unselectTables(tableNumber = 0) {
     const thisBooking = this;
@@ -164,6 +233,7 @@ class Booking {
       }
 
       thisBooking.booked[date][hourBlock].push(table);
+      console.log(thisBooking.booked[date][hourBlock]);
     }
   }
 

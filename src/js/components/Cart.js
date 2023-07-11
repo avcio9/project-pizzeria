@@ -46,12 +46,12 @@ class Cart {
     });
 
     thisCart.dom.phone.addEventListener('input', function () {
-      const isValid = thisCart.validateForm(thisCart.dom.phone.value, 'phone');
+      const isValid = utils.validateForm(thisCart.dom.phone.value, 'phone');
       isValid ? thisCart.dom.phone.classList.remove('error') : thisCart.dom.phone.classList.add('error');
       thisCart.isPhoneValid = isValid;
     });
     thisCart.dom.address.addEventListener('input', function () {
-      const isValid = thisCart.validateForm(thisCart.dom.address.value, 'address');
+      const isValid = utils.validateForm(thisCart.dom.address.value, 'address');
       isValid ? thisCart.dom.address.classList.remove('error') : thisCart.dom.address.classList.add('error');
       thisCart.isAddressValid = isValid;
     });
@@ -77,20 +77,7 @@ class Cart {
     }
 
 
-    app.API.sendPayload(payload);
-  }
-
-  validateForm(input, type) {
-    switch (type) {
-    case 'address':
-      return input.includes('@') && input.includes('.') && input.length > 3;
-    case 'phone': {
-      let allowedLength = 9;
-      if (input.includes('+')) allowedLength += 2;
-      input = input.replaceAll(' ', '').replace('+','');
-      return parseInt(input).toString().length == allowedLength && input.length == allowedLength;
-    }
-    }
+    app.API.sendPayload(payload, settings.db.url + '/' + settings.db.orders);
   }
 
   validateCart() {

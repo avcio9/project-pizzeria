@@ -78,4 +78,17 @@ utils.addDays = function(dateStr, days){
   return dateObj;
 };
 
+utils.validateForm = function(input, type) {
+  switch (type) {
+  case 'address':
+    return input.includes('@') && input.includes('.') && input.length > 3;
+  case 'phone': {
+    let allowedLength = 9;
+    if (input.includes('+')) allowedLength += 2;
+    input = input.replaceAll(' ', '').replace('+','');
+    return parseInt(input).toString().length == allowedLength && input.length == allowedLength;
+  }
+  }
+};
+
 export default utils;

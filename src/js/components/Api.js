@@ -17,9 +17,8 @@ class API {
       });
   }
 
-  sendPayload(payload){
+  sendPayload(payload, url){
     const thisApi = this;
-    const url = settings.db.url + '/' + settings.db.orders;
     const options = {
       method: 'POST',
       body: JSON.stringify(payload),
