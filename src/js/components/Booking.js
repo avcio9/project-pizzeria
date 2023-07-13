@@ -233,7 +233,6 @@ class Booking {
       }
 
       thisBooking.booked[date][hourBlock].push(table);
-      console.log(thisBooking.booked[date][hourBlock]);
     }
   }
 

@@ -7,7 +7,7 @@ import Booking from './components/Booking.js';
 
 
 const app = {
-  initPages: function() {
+  initPages: function () {
     const thisApp = this;
 
     thisApp.pages = document.querySelector(select.containerOf.pages).children;
@@ -16,7 +16,7 @@ const app = {
     const idFromHash = window.location.hash.replace('#/', '');
     let pageMatchingHash = thisApp.pages[0].id;
     for (let page of thisApp.pages) {
-      if (page.id == idFromHash){
+      if (page.id == idFromHash) {
         pageMatchingHash = page.id;
         break;
       }
@@ -24,7 +24,7 @@ const app = {
     thisApp.activatePage(pageMatchingHash);
 
     for (let link of thisApp.navLinks) {
-      link.addEventListener('click', function(event){
+      link.addEventListener('click', function (event) {
         const clickedElement = this;
         event.preventDefault();
         const id = clickedElement.getAttribute('href').replace('#', '');
@@ -35,9 +35,20 @@ const app = {
         window.location.hash = '#/' + id;
       });
     }
+    thisApp.activateCarousel();
+  },
+  activateCarousel: function () {
+    const thisApp = this;
+    const elem = document.querySelector('.main-carousel');
+    // eslint-disable-next-line no-undef
+    thisApp.carousel = new Flickity(elem, {
+      cellAlign: 'left',
+      contain: true,
+      autoPlay: true
+    });
   },
 
-  activatePage: function(pageId) {
+  activatePage: function (pageId) {
     const thisApp = this;
 
     // add class 'active' to matching pages, remove non-matching
@@ -48,9 +59,9 @@ const app = {
 
     // add class 'active' to matching links, remove non matching
 
-    for (let link of thisApp.navLinks){
+    for (let link of thisApp.navLinks) {
       link.classList.toggle(
-        classNames.pages.active, 
+        classNames.pages.active,
         link.getAttribute('href') == '#' + pageId
       );
     }
@@ -62,6 +73,19 @@ const app = {
       new Product(thisApp.data.products[productData].id, thisApp.data.products[productData]);
     }
   },
+  initHome: function () {
+    const thisApp = this;
+    const links = document.querySelector('.options-container');
+    for (const a of links.children){
+      const href = a.getAttribute('href');
+
+      // skip if not a link
+      if (!href) return;
+      a.addEventListener('click', function(){
+        thisApp.activatePage(href.replace('#', ''));
+      });
+    }
+  },
   initAPI: function () {
     const thisApp = this;
     thisApp.API = new API();
@@ -71,7 +95,7 @@ const app = {
     thisApp.data = {};
     thisApp.API.getProducts();
   },
-  initBooking: function() {
+  initBooking: function () {
     const thisApp = this;
     const bookingWrapper = document.querySelector(select.containerOf.booking);
     thisApp.booking = new Booking(bookingWrapper);
@@ -83,6 +107,7 @@ const app = {
     thisApp.initCart();
     thisApp.initPages();
     thisApp.initBooking();
+    thisApp.initHome();
   },
   initCart: function () {
     const thisApp = this;
@@ -92,11 +117,11 @@ const app = {
 
     thisApp.productList = document.querySelector(select.containerOf.menu);
 
-    thisApp.productList.addEventListener('addToCart', function(event){
+    thisApp.productList.addEventListener('addToCart', function (event) {
       app.cart.add(event.detail.product);
     });
   }
-  
+
 };
 app.init();
 

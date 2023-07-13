@@ -19,6 +19,8 @@ $radius: 4px;
 
 $base-size: 12px;
 
+$home-height: 240px;
+
 /* Mixins */
 
 @mixin btn($btn-bg, $btn-text, $btn-border) {
@@ -111,3 +113,9 @@ $base-size: 12px;
     transform: rotateX(0deg);
   }
 }
+
+/* flickity settings */
+
+.flickity-button {
+  display: none;
+  }
